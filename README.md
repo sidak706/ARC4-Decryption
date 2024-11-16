@@ -37,7 +37,7 @@ and proceeds as shown in this pseudocode:
         plaintext[k] = pad[k] xor ciphertext[k]  -- xor each byte
 
 
-# Ready Enable Protocol
+<!-- # Ready Enable Protocol
 Each phase and module in this project uses the ready-enable protocol handshake. Whenever `rdy` is asserted, it means that the callee is able to accept a request _in the same cycle_. When the caller asserts `en`, the handshake is complete. `rdy` is reasserted only when the module is ready to run again. 
 
 # Memory Initialization
@@ -61,4 +61,59 @@ readable sentence in the PT RAM (which can be viewed on Quartus).
 
 # Optional
 To simulate on modelsim, initialize the ct RAM using the following:
+initial $readmemh("test2.memh", ct.altsyncram_component.m_default.altsyncram_inst.mem_data); -->
+
+# Ready-Enable Protocol
+
+This project employs a **ready-enable protocol handshake** across all phases and modules:
+
+- `rdy` (ready) signal: Indicates that the callee is able to accept a request *in the same cycle*.
+- `en` (enable) signal: Asserted by the caller to complete the handshake.
+- The `rdy` signal is reasserted only when the module is ready to process again.
+
+---
+
+# Memory Initialization
+
+A sample test (`test.mif`) is included to observe the output key and verify functionality. 
+- The `test.mif` file is used to initialize the **ct RAM**.
+- Upon completion, a human-readable sentence (in HEX values) is generated and stored in the **pt RAM** on the FPGA.
+
+---
+
+# Implementation: 5 Phases
+
+The project is divided into 5 distinct phases:
+
+### **Phases 1–3: ARC4 Algorithm**
+These phases implement the core functionality of the ARC4 algorithm.
+
+### **Phase 4: Key Search**
+- Sequentially searches through the key space, starting from `h000000` and incrementing by 1 per iteration.
+- Identifies a key that produces a plaintext (`pt`) where all characters are readable ASCII (`h20` to `h7E`, inclusive).
+
+### **Phase 5: Parallel Key Search**
+- Doubles the search speed by running two cracking modules in parallel:
+  - **Module 1:** Iterates over even keys.
+  - **Module 2:** Iterates over odd keys.
+- When a suitable key is found, it is displayed on the DE1-SOC in **big-endian format**.
+
+---
+
+# Running Instructions
+
+To run the algorithm with the provided test file:
+
+1. Upload `phase5.sv` to the DE1-SOC board along with all required modules (located in the `modules` folder).
+2. The final key will be displayed on the FPGA.
+3. The plaintext (readable sentence) will be stored in the **pt RAM**, which can be viewed using **Quartus**.
+
+---
+
+# Optional: Simulating on ModelSim
+
+To simulate the algorithm in **ModelSim**, initialize the `ct RAM` with the following command:
+
+```verilog
 initial $readmemh("test2.memh", ct.altsyncram_component.m_default.altsyncram_inst.mem_data);
+
