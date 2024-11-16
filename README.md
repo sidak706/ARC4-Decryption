@@ -37,9 +37,21 @@ and proceeds as shown in this pseudocode:
         plaintext[k] = pad[k] xor ciphertext[k]  -- xor each byte
 
 
+# Ready Enable Protocol
+Each phase and module in this project uses the ready-enable protocol handshake. Whenever `rdy` is asserted, it means that the callee is able to accept a request _in the same cycle_. When the caller asserts `en`, the handshake is complete. `rdy` is reasserted only when the module is ready to run again. 
 
-# Phase 1
-In phase 1, I have implemented init. The init module simply initializes the S 
+# Memory Initialization
+I have included 1 sample test to run, and see the output of the key. The values in test.mif are used to initialize the ct RAM. Upon completion a human readable sentence (in HEX values) will be produced in the FPGA pt RAM. 
+
+# 5 phases
+I have broken down the implementation of the above algorithm into 5 different phases. 
+Phases 1-3 implement the ARC4 algorithm. 
+Phase 4 is used to sequentially search through the key space starting from key 'h000000 and incrementing by 1 every iteration  and find a key that produces an output such that 
+each character in pt is readable i.e 'h20 and 'h7E inclusive (i.e., readable ASCII).
+Phase 5 speeds up the search process by 100% by running 2 crack modules in parallel with the first one iterating over
+even keys, and the second one iterating over odd keys. 
+
+
 
 
 initial $readmemh("C:\\CPEN311\\lab-3-lab3-l1c-70\\task3\\test2.memh", ct.altsyncram_component.m_default.altsyncram_inst.mem_data);
