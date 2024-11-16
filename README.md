@@ -51,7 +51,14 @@ each character in pt is readable i.e 'h20 and 'h7E inclusive (i.e., readable ASC
 Phase 5 speeds up the search process by 100% by running 2 crack modules in parallel with the first one iterating over
 even keys, and the second one iterating over odd keys. 
 
+Once a suitable key is found, it will be displayed on the DE1-SOC in big-endian form. 
+
+# Running instructions
+To see the algorithm in action with the given test file, simply upload the phase5.sv onto the DE1-SOC with all 
+modules (except the phases) found in the modules folder. The final key will then be displayed on the FPGA with 
+readable sentence in the PT RAM (which can be viewed on Quartus). 
 
 
-
-initial $readmemh("C:\\CPEN311\\lab-3-lab3-l1c-70\\task3\\test2.memh", ct.altsyncram_component.m_default.altsyncram_inst.mem_data);
+# Optional
+To simulate on modelsim, initialize the ct RAM using the following:
+initial $readmemh("test2.memh", ct.altsyncram_component.m_default.altsyncram_inst.mem_data);
